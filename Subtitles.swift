@@ -315,7 +315,7 @@ public extension AVPlayerViewController {
             subtitleLabel?.backgroundColor = UIColor.clear
             subtitleLabel?.textAlignment = .center
             subtitleLabel?.numberOfLines = 0
-            subtitleLabel?.font = UIFont.boldSystemFont(ofSize: UI_USER_INTERFACE_IDIOM() == .pad ? 40.0 : 22.0)
+            subtitleLabel?.font = UIFont.boldSystemFont(ofSize: UI_USER_INTERFACE_IDIOM() == .pad ? 40.0 : 32.0)
             subtitleLabel?.textColor = UIColor.white
             subtitleLabel?.numberOfLines = 0;
             subtitleLabel?.layer.shadowColor = UIColor.black.cgColor
@@ -327,14 +327,27 @@ public extension AVPlayerViewController {
             subtitleLabel?.lineBreakMode = .byWordWrapping
             contentOverlayView?.addSubview(subtitleLabel!)
             
-            // Position
-            var constraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-(20)-[l]-(20)-|", options: NSLayoutConstraint.FormatOptions(rawValue: 0), metrics: nil, views: ["l" : subtitleLabel!])
-        
-            
-            contentOverlayView?.addConstraints(constraints)
-            constraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[l]-(200)-|", options:NSLayoutConstraint.FormatOptions.alignAllCenterY, metrics: nil, views: ["l" : subtitleLabel!])
+            var constraints = NSLayoutConstraint.constraints(
+                withVisualFormat: "V:[superview]-(<=1)-[label]",
+                options: NSLayoutConstraint.FormatOptions.alignAllCenterX,
+              metrics: nil,
+                views: ["superview":contentOverlayView!, "label":subtitleLabel!])
 
             contentOverlayView?.addConstraints(constraints)
+
+             // Center vertically
+            constraints = NSLayoutConstraint.constraints(
+                withVisualFormat: "H:[superview]-(<=1)-[label]",
+                options: NSLayoutConstraint.FormatOptions.alignAllCenterY,
+              metrics: nil,
+              views: ["superview":contentOverlayView!, "label":subtitleLabel!])
+
+            contentOverlayView?.addConstraints(constraints)
+            
+            constraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-(20)-[l]-(20)-|", options: NSLayoutConstraint.FormatOptions(rawValue: 0), metrics: nil, views: ["l" : subtitleLabel!])
+            contentOverlayView?.addConstraints(constraints)
+
+            
             subtitleLabelHeightConstraint = NSLayoutConstraint(item: subtitleLabel!, attribute: .height, relatedBy: .equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1.0, constant: 100.0)
             contentOverlayView?.addConstraint(subtitleLabelHeightConstraint!)
             
@@ -343,5 +356,4 @@ public extension AVPlayerViewController {
         }
         
     }
-    
 }
