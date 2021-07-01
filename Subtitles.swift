@@ -13,14 +13,14 @@ import CoreMedia
 
 private struct AssociatedKeys {
     static var FontKey = "FontKey"
-    static var ColorKey = "FontKey"
+    static var ColorKey = "ColorKey"
     static var SubtitleKey = "SubtitleKey"
     static var SubtitleHeightKey = "SubtitleHeightKey"
     static var PayloadKey = "PayloadKey"
 }
 
-@objc public class Subtitles : NSObject {
-
+public class Subtitles {
+    
     // MARK: - Properties
     fileprivate var parsedPayload: NSDictionary?
     
@@ -35,7 +35,7 @@ private struct AssociatedKeys {
         
     }
     
- @objc public init(subtitles string: String) {
+    public init(subtitles string: String) {
         
         // Parse string
         parsedPayload = Subtitles.parseSubRip(string)
@@ -46,10 +46,19 @@ private struct AssociatedKeys {
     ///
     /// - Parameter time: Time
     /// - Returns: String if exists
- @objc public func searchSubtitles(at time: TimeInterval) -> String? {
+    public func searchSubtitles(at time: TimeInterval) -> String? {
         
         return Subtitles.searchSubtitles(parsedPayload, time)
         
+    }
+    
+    /// Search time at subtitle
+    ///
+    /// - Parameter time: Time
+    /// - Returns: String if exists
+    public func searchTimeAtSubtitle(at string: String) -> Double? {
+        
+        return Subtitles.searchTimeAtSubtitle(parsedPayload, string)
     }
     
     // MARK: - Private methods
@@ -168,6 +177,24 @@ private struct AssociatedKeys {
         
     }
     
+    fileprivate static func searchTimeAtSubtitle(_ payload: NSDictionary?, _ string: String) -> Double? {
+        
+        guard let values = payload?.allValues else {
+            return nil
+        }
+        
+        for value in values {
+            let dic =  value as? NSDictionary
+            
+            guard let text = dic?.value(forKey: "text") as? String else { return nil }
+
+            if text == string {
+                guard let from = dic?.value(forKey: "from") as? Double else { return nil }
+                return from;
+            }
+        }
+        return nil
+    }
 }
 
 public extension AVPlayerViewController {
@@ -302,10 +329,13 @@ public extension AVPlayerViewController {
             
             // Position
             var constraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-(20)-[l]-(20)-|", options: NSLayoutConstraint.FormatOptions(rawValue: 0), metrics: nil, views: ["l" : subtitleLabel!])
+        
+            
             contentOverlayView?.addConstraints(constraints)
-            constraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[l]-(30)-|", options: NSLayoutConstraint.FormatOptions(rawValue: 0), metrics: nil, views: ["l" : subtitleLabel!])
+            constraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[l]-(200)-|", options:NSLayoutConstraint.FormatOptions.alignAllCenterY, metrics: nil, views: ["l" : subtitleLabel!])
+
             contentOverlayView?.addConstraints(constraints)
-            subtitleLabelHeightConstraint = NSLayoutConstraint(item: subtitleLabel!, attribute: .height, relatedBy: .equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1.0, constant: 30.0)
+            subtitleLabelHeightConstraint = NSLayoutConstraint(item: subtitleLabel!, attribute: .height, relatedBy: .equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1.0, constant: 100.0)
             contentOverlayView?.addConstraint(subtitleLabelHeightConstraint!)
             
             return
